@@ -1,0 +1,14 @@
+{
+  "name": "camelup",
+  "version": "1.0.0",
+  "description": "a port of the wildly popular board game Camel Up",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Oliver Speltz",
+  "license": "MIT",
+  "dependencies": {
+    "prompt-sync": "^4.2.0"
+  }
+}
