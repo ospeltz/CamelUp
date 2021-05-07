@@ -1,26 +1,41 @@
-class Test {
-    name;
-    id;
-    constructor(nm) {
-        this.name = nm;
-        this.id = null;
-    }
-    func() {
-        console.log('yoo were in Test');
-        console.log(this.name, this.id);
-    }
-}
-class Test1 extends Test {
-    func() {
-        super.func();
-        console.log('test1');
-    }
-}
+const boardMaker = require('./board.js');
 
-var one = new Test('jon');
-var two = new Test1('oliver');
 
-one.func()
-two.func()
+let camels = [
+  {
+    space: 6,
+    level: 0,
+    color: 'blue'
+  },
+  {
+    space: 6,
+    level: 1,
+    color: 'red'
+  },
+  {
+    space: 6,
+    level: 2,
+    color: 'white',
+    isCrazy:true
+  },
+  {
+    space: 3,
+    level: 0,
+    color: 'purple'
+  },
+  {
+    space: 11,
+    level: 0,
+    color: 'yellow'
+  },
+  {
+    space: 2,
+    level: 0,
+    color: 'pink',
+    isCrazy: true
+  }
 
-console.log(one.id === undefined)
+];
+
+boardMaker(camels);
+
