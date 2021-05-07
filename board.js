@@ -27,7 +27,8 @@ const coordinateMap = createCooridanteMap();
 //   {
 //     space: 6,
 //     level: 2,
-//     color: 'white'
+//     color: 'white',
+//     isCrazy:true
 //   },
 //   {
 //     space: 3,
@@ -42,13 +43,16 @@ const coordinateMap = createCooridanteMap();
 
 // ];
 
-//getCurrentBoard(camels);
+// getCurrentBoard(camels);
 
-function getCurrentBoard(camels)  {
+module.exports = function getCurrentBoard(camels)  {
   drawBlankBoard();
   drawNumbers();
   for(let camel of camels){
-    drawCamel(camel.space,camel.level,camel.color)
+    if(camel.isCrazy)
+      drawCrazyCamel(camel.space,camel.level,camel.color);
+    else
+      drawCamel(camel.space,camel.level,camel.color);
   }
 
   const buffer = canvas.toBuffer('image/png');
@@ -125,40 +129,96 @@ function drawCamel(space, stack_level,color) {
   scale = HEIGHT / 150;
   y -= stack_level * 20 * scale;
   
+
   ctx.setLineDash([]);
   ctx.strokeStyle = 'black';
   ctx.beginPath();
   ctx.moveTo(x,y);
-  ctx.lineTo(x + 0  * scale, y + 5  * scale);
-  ctx.lineTo(x + 5  * scale, y + 4  * scale);
-  ctx.lineTo(x + 5  * scale, y + 10 * scale);
-  ctx.lineTo(x + 10 * scale ,y + 20 * scale);
-  ctx.lineTo(x + 15 * scale, y + 20 * scale);
-  ctx.lineTo(x + 20 * scale, y + 10 * scale);
+  ctx.lineTo(x + 0  * scale, y + 9  * scale);
+  ctx.lineTo(x + 10  * scale, y + 9  * scale);
+  ctx.lineTo(x + 10  * scale, y + 10 * scale);
+  ctx.lineTo(x + 15 * scale ,y + 20 * scale);
+  ctx.lineTo(x + 20 * scale, y + 20 * scale);
   ctx.lineTo(x + 25 * scale, y + 10 * scale);
-  ctx.lineTo(x + 30 * scale, y + 20 * scale);
+  ctx.lineTo(x + 30 * scale, y + 10 * scale);
   ctx.lineTo(x + 35 * scale, y + 20 * scale);
-  ctx.lineTo(x + 40 * scale, y + 10 * scale);
-  ctx.lineTo(x + 43 * scale, y + 10 * scale);
-  ctx.lineTo(x + 41 * scale, y + 8  * scale);
-  ctx.quadraticCurveTo(x + 44 * scale, y + 8 * scale,x + 47 * scale, y + 5 * scale);
-  //ctx.lineTo(x + 47 * scale, y + 5 * scale);
+  ctx.lineTo(x + 40 * scale, y + 20 * scale);
+  ctx.lineTo(x + 45 * scale, y + 10 * scale);
+  ctx.lineTo(x + 48 * scale, y + 10 * scale);
+  ctx.lineTo(x + 46 * scale, y + 8  * scale);
+  ctx.quadraticCurveTo(x + 49 * scale, y + 8 * scale,x + 52 * scale, y + 5 * scale);
+  ctx.lineTo(x + 50 * scale, y - 10 * scale);
   ctx.lineTo(x + 45 * scale, y - 10 * scale);
-  ctx.lineTo(x + 40 * scale, y - 10 * scale);
+  ctx.lineTo(x + 40 * scale, y);
   ctx.lineTo(x + 35 * scale, y);
-  ctx.lineTo(x + 30 * scale, y);
+  ctx.lineTo(x + 30 * scale, y - 10 * scale);
   ctx.lineTo(x + 25 * scale, y - 10 * scale);
-  ctx.lineTo(x + 20 * scale, y - 10 * scale);
+  ctx.lineTo(x + 20 * scale, y + 0 * scale);
   ctx.lineTo(x + 15 * scale, y + 0 * scale);
-  ctx.lineTo(x + 10 * scale, y + 0 * scale);
-  ctx.lineTo(x + 5  * scale, y - 10 * scale);
-  ctx.lineTo(x + 3  * scale, y - 1 * scale);
+  ctx.lineTo(x + 10  * scale, y - 10 * scale);
+  ctx.lineTo(x + 8  * scale, y - 1 * scale);
   ctx.lineTo(x,y);
 
   ctx.fillStyle = color;
-  
   ctx.fill();
   ctx.stroke();
+
+
+  ctx.beginPath();
+  ctx.arc(x + 4 * scale, y + 2 * scale,scale,0, 2* Math.PI);
+  ctx.fillStyle = 'black';
+  ctx.fill();
+
+
+}
+
+function drawCrazyCamel(space, stack_level, color) {
+  let {x,y} = coordinateMap.get(space);
+  x += WIDTH *.25;
+  y += HEIGHT * .8;
+  scale = HEIGHT / 150;
+  x += scale * 55;
+  y -= stack_level * 20 * scale;
+  
+
+  ctx.setLineDash([]);
+  ctx.strokeStyle = 'black';
+  ctx.beginPath();
+  ctx.moveTo(x,y);
+  ctx.lineTo(x + 0  * scale, y + 9  * scale);
+  ctx.lineTo(x - 10  * scale, y + 9  * scale);
+  ctx.lineTo(x - 10  * scale, y + 10 * scale);
+  ctx.lineTo(x - 15 * scale ,y + 20 * scale);
+  ctx.lineTo(x - 20 * scale, y + 20 * scale);
+  ctx.lineTo(x - 25 * scale, y + 10 * scale);
+  ctx.lineTo(x - 30 * scale, y + 10 * scale);
+  ctx.lineTo(x - 35 * scale, y + 20 * scale);
+  ctx.lineTo(x - 40 * scale, y + 20 * scale);
+  ctx.lineTo(x - 45 * scale, y + 10 * scale);
+  ctx.lineTo(x - 48 * scale, y + 10 * scale);
+  ctx.lineTo(x - 46 * scale, y + 8  * scale);
+  ctx.quadraticCurveTo(x - 49 * scale, y + 8 * scale,x - 52 * scale, y + 5 * scale);
+  ctx.lineTo(x - 50 * scale, y - 10 * scale);
+  ctx.lineTo(x - 45 * scale, y - 10 * scale);
+  ctx.lineTo(x - 40 * scale, y);
+  ctx.lineTo(x - 35 * scale, y);
+  ctx.lineTo(x - 30 * scale, y - 10 * scale);
+  ctx.lineTo(x - 25 * scale, y - 10 * scale);
+  ctx.lineTo(x - 20 * scale, y + 0 * scale);
+  ctx.lineTo(x - 15 * scale, y + 0 * scale);
+  ctx.lineTo(x - 10  * scale, y - 10 * scale);
+  ctx.lineTo(x - 8  * scale, y - 1 * scale);
+  ctx.lineTo(x,y);
+
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.stroke();
+
+
+  ctx.beginPath();
+  ctx.arc(x - 4 * scale, y + 2 * scale,scale,0, 2* Math.PI);
+  ctx.fillStyle = 'black';
+  ctx.fill();
 }
 
 
