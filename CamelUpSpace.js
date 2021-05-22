@@ -23,7 +23,8 @@ class Space {
     toObj() {
         return {
             id: this.id,
-            stack: this.stack == null ? null : this.stack.toObj()
+            stack: this.stack == null ? null : this.stack.toObj(),
+            _class: this.constructor.name
         };
     }
     fromObj(obj, game) {

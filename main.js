@@ -1,5 +1,7 @@
 const _CamelUpGame = require('./CamelUpGame.js');
 const {Utilities} = require('./Utilities.js'); 
+const getCurrentBoard = require('./BoardMaker.js')
+const fs = require('fs');
 
 var debugInputs = [
     `bet ${Math.floor(Math.random()*5)} rnd 2`,
@@ -12,7 +14,7 @@ var debugInputs = [
     "roll", "roll", "roll", "roll", "roll", "roll", "roll", "roll", 
     "roll", "roll", "roll", "roll", "roll", "roll", 'roll', "roll", 
     "roll", 'roll', "roll", "roll"
-]
+];
 Utilities.shuffleArray(debugInputs);
 
 var debug = () => {
@@ -24,9 +26,13 @@ var debug = () => {
 };
 
 var cmup = new _CamelUpGame.CamelUpGame({playerNames:['oliver', "alonzo", "dylan"], userInput: debug});
-cmup.printBoard();
 cmup.runGame();
-var obj = cmup.exportGame();
-var cmup1 = new _CamelUpGame.CamelUpGame({gameObj:obj})
-var obj2 = cmup1.exportGame();
-console.log(JSON.stringify(obj) == JSON.stringify(obj2));
+var str = JSON.stringify(cmup.exportGame(), null, '\t');
+try {
+    fs.writeFileSync('./exports/game_state.json', str)
+} catch {
+    console.log('write file failed');
+}
+var camels = cmup.toBoardMaker();
+getCurrentBoard(camels)
+

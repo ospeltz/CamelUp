@@ -5,6 +5,7 @@ const { Utilities } = require('./Utilities.js');
 const fs = require('fs');
 
 // TODO: make everything private variables
+const COLORS = ['blue', 'red', 'yellow', 'green', 'purple', 'black', 'white'];
 
 class CamelUpGame {
     board;
@@ -13,14 +14,17 @@ class CamelUpGame {
     gameOver;
     spaceSize;
     userInput;
+    roomId;
+    currTurn;
+    currRound;
     
-    // TODO parameter destructuring
     constructor({
             playerNames=[], // an array of strings
             nCamels=5,
             nCrazyCamels=2,
             boardSize=15,
             roundBetValues=[2, 1.5],
+            roomId, // discord room number
             gameObj=null,
             userInput=null // a function that takes takes one string arg, a prompt, a returns a string of user input
     }={}) {
@@ -33,6 +37,9 @@ class CamelUpGame {
         else
             this.userInput = input
 
+        this.roomId = Math.random(); // will need this eventually
+        this.currTurn = 0;
+        this.currRound = 1;
         this.spaceSize = 6; // the number of characters taken up by a space on the board
         this.gameOver = false;
 
@@ -56,6 +63,7 @@ class CamelUpGame {
     runGame() {
         // loops the game until it is over
         while (!this.gameOver) {
+            this.currTurn++;
             this.getMove();
             this.nextPlayer();
             console.log();
@@ -90,6 +98,7 @@ class CamelUpGame {
         // makes all camels rollable again, rewards players for round bets, removes spectator tokens
         var ranking = this.orderCamels(true);
         this.camels.forEach(cam => {cam.endRound(ranking);});
+        this.currRound++;
     }
 
     endGame() {
@@ -136,6 +145,7 @@ class CamelUpGame {
 
         return true;
     }
+
     moveCamel(cam, r) {
         // moves the camel referenced by cam r spaces forward (or backward)
         // moves any camels on top of cam with it. returns true if the game is over, puts the 
@@ -172,10 +182,12 @@ class CamelUpGame {
             }
         }
     }
+
     placeSpectatorToken() {
         console.log('not implemented');
         return false;
     }
+
     makePartnership() {
         console.log('not implemented');
         return false;
@@ -193,6 +205,7 @@ class CamelUpGame {
         // puts the first player at the end of the list
         this.players.push(this.players.shift());
     }
+
     orderCamels(removeCrazy=false) {
         // returns an array of Camel objects in their ranks, ie first place at index 0 and so on
         // if remove crazy is true, returns an array with no crazy camels in it
@@ -221,6 +234,7 @@ class CamelUpGame {
         });
         this.camels.forEach(cam => {cam.rolled = false;});
     }
+
     getPlayer(id) {
         // returns the player with the matching id, undefined otherwise
         for (var i = 0; i < this.players.length; i++) {
@@ -228,9 +242,9 @@ class CamelUpGame {
                 return this.players[i];
         }
     }
+
     importGame(gameObj, fromFP=false) {
         if (fromFP) {
-            // TODO try catch here
             var str = fs.readFileSync(gameObj);
             gameObj = JSON.parse(str)
         }
@@ -251,19 +265,39 @@ class CamelUpGame {
         this.camels = this.orderCamels();        
     }
 
+    toBoardMaker() {
+        // exports the game state in a format for the BoardMaker to read
+        var cams = [];
+        this.board.forEach(sp => {
+            var curr = sp.stack;
+            var lvl = 0;
+            while (curr !== null) {
+                cams.push({
+                    space: sp.id,
+                    level: lvl,
+                    color: COLORS[curr.id],
+                    isCrazy: curr.crazy
+                })
+                curr = curr.stack;
+                lvl++;
+            }
+        })
+        return cams;
+    }
+
     exportGame() {
         // exports game state to a json object, replaces object pointers with ids
         var players = this.players.map(pl => pl.toObj());
         var board = this.board.map(space => space.toObj());
         var camels = this.orderCamels().map(cm => cm.toObj());
-        var dt = Date.now().toString();
-        var obj = {players, board, camels};
-        var str = JSON.stringify(obj, null, 2)
-        try {
-            fs.writeFileSync(`exports/${dt}.json`, str);
-        } catch (err) {
-            console.error(err)
-        }
+        var obj = {
+            roomId: this.roomId,
+            currRound: this.currRound,
+            currTurn: this.currTurn,
+            players, 
+            board, 
+            camels,
+        };
         return obj;
     }
 

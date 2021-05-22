@@ -1,4 +1,3 @@
-
 const { createCanvas, loadImage } = require('canvas');
 const fs = require('fs');
 
@@ -56,7 +55,7 @@ module.exports = function getCurrentBoard(camels)  {
   }
 
   const buffer = canvas.toBuffer('image/png');
-  fs.writeFileSync('./board.png', buffer);
+  fs.writeFileSync('./exports/board.png', buffer);
 }
 
 
