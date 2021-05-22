@@ -23,12 +23,12 @@ class BasePlayer {
             _class: this.constructor.name
         };
     }
-    fromObj(obj, game) {
-        if (!util.isNumber(obj.id) || !util.isString(obj.name) || !util.isNumber(obj.money))
+    fromObj(obj) {
+        if (typeof(obj.id) !== 'number' || typeof(obj.name) !== 'string' || typeof(obj.money) !== 'number')
             throw `invalid player object`;
         this.id = obj.id;
         this.name = obj.name;
-        this.money = money;
+        this.money = obj.money;
     }
 }
 exports.CamelUpPlayer = BasePlayer;

@@ -47,14 +47,24 @@ class BaseBet {
         return {
             holder: this.holder == null ? null : this.holder.id,
             value: this.value,
-            down: this.down,
+            down: this.down == null ? null : this.down,
             _class: this.constructor.name
         };
     }
     fromObj(obj, game) {
-        if (obj.holder === undefined || !util.isNumber(obj.value) || obj.down === undefined)
+        if (typeof(obj.value) !== 'number' ||
+            ((typeof(obj.holder) !== 'number' && typeof(obj.down) !== 'number') &&
+            (typeof(obj.holder) !== 'object' && typeof(obj.down) !== 'object'))) // null
             throw "invalid bet object"
-        // TODO     
+
+        this.value = obj.value;
+        if (typeof(obj.down) === 'number') {
+            this.down = obj.down;
+            this.holder = game.getPlayer(obj.holder);
+        } else {
+            this.down = null;
+            this.holder = null;
+        }
     }
 }
 exports.CamelUpBet = BaseBet;

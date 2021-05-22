@@ -37,7 +37,7 @@ class CamelUpGame {
         this.gameOver = false;
 
         if (gameObj !== null) {
-            importGame(gameObj);
+            this.importGame(gameObj);
         } else {
             var i = 0;
             this.players = playerNames.map(nm => {return new _CamelUpPlayer.CamelUpPlayer(i++, nm)});
@@ -77,6 +77,10 @@ class CamelUpGame {
                 finished = this.placeSpectatorToken();
             else if (args[0] == "partner" || args[0] == 'p')
                 finished = this.makePartnership();
+            else if (args[0] == '/export') // should also protect this from the user
+                finished = this.exportGame().board.length == this.board.length;
+            else if (args[0] == '/gameover') // TODO cant let the user use this
+                finished = this.endGame()
             else
                 console.log('invalid input');
         }
@@ -84,19 +88,13 @@ class CamelUpGame {
 
     endRound() {
         // makes all camels rollable again, rewards players for round bets, removes spectator tokens
-        var ranking = [];
-        this.board.forEach( space => {
-            var curr = space.stack;
-            while (curr != null) {
-                if (!curr.crazy)
-                    ranking.unshift(curr);
-                curr = curr.stack;
-            }
-        });
+        var ranking = this.orderCamels(true);
         this.camels.forEach(cam => {cam.endRound(ranking);});
     }
+
     endGame() {
         this.gameOver = true;
+        return true;
     }
 
     getPlayerBet(args=[]) {
@@ -184,13 +182,10 @@ class CamelUpGame {
     }
 
     getInput(prompt) {
+        // gets input from the user, adds a way to exit the program
+        // TODO probablt don't need the /end command any more
         var str = this.userInput(prompt);
         if (str == "/end") process.exit();
-        if (str == "/export") {
-            var js = this.exportGame();
-            console.log(JSON.stringify(js));
-            process.exit();
-        }
         return str;
     }
 
@@ -198,6 +193,21 @@ class CamelUpGame {
         // puts the first player at the end of the list
         this.players.push(this.players.shift());
     }
+    orderCamels(removeCrazy=false) {
+        // returns an array of Camel objects in their ranks, ie first place at index 0 and so on
+        // if remove crazy is true, returns an array with no crazy camels in it
+        var cams = [];
+        this.board.forEach(space => {
+            var curr = space.stack;
+            while (curr != null) {
+                if (!curr.crazy || !removeCrazy)
+                    cams.unshift(curr);
+                curr = curr.stack;
+            }
+        });
+        return cams;
+    }
+
     initiateBoard(boardSize) {
         // places camels on board randomly in starting positions
         this.board = [];
@@ -211,12 +221,23 @@ class CamelUpGame {
         });
         this.camels.forEach(cam => {cam.rolled = false;});
     }
-    
-    importGame(gameObj) {
+    getPlayer(id) {
+        // returns the player with the matching id, undefined otherwise
+        for (var i = 0; i < this.players.length; i++) {
+            if (this.players[i].id === id)
+                return this.players[i];
+        }
+    }
+    importGame(gameObj, fromFP=false) {
+        if (fromFP) {
+            // TODO try catch here
+            var str = fs.readFileSync(gameObj);
+            gameObj = JSON.parse(str)
+        }
         this.players = gameObj.players.map(pl => {
             if (pl._class == "BasePlayer") {
                 var p = new _CamelUpPlayer.CamelUpPlayer();
-                p.fromObj(pl, this);
+                p.fromObj(pl);
                 return p;
             } else {
                 throw `invalid player class ${pl._class}`;
@@ -227,15 +248,14 @@ class CamelUpGame {
             s.fromObj(space, this);
             return s;
         })
-        
-
-        
+        this.camels = this.orderCamels();        
     }
+
     exportGame() {
         // exports game state to a json object, replaces object pointers with ids
         var players = this.players.map(pl => pl.toObj());
         var board = this.board.map(space => space.toObj());
-        var camels = this.camels.map(cm => cm.toObj());
+        var camels = this.orderCamels().map(cm => cm.toObj());
         var dt = Date.now().toString();
         var obj = {players, board, camels};
         var str = JSON.stringify(obj, null, 2)
@@ -246,6 +266,7 @@ class CamelUpGame {
         }
         return obj;
     }
+
     printBoard() {
         var atTop = false; // have reached top camel
         var stringLayers = []; // layers of formatted strings to be printed

@@ -28,6 +28,9 @@ class Space {
     }
     fromObj(obj, game) {
         // constructs the object based on the pased json object, objects nested inside of this also initiated
+        if (typeof(obj.id) !== 'number' || typeof(obj.stack) !== 'object')
+            throw "invalid space object";
+            
         this.id = obj.id;
         if (obj.stack === null) {
             this.stack = null;
@@ -48,11 +51,14 @@ class BaseCamel extends Space {
         this.crazy = crazy; // true if moves backwards
         this.rolled = false;
         
-        if (!crazy) {
+        if (!crazy && roundBetValues != undefined) {
             // initiate bets
             this.roundBets = roundBetValues.map(val => {
                 return new _CamelUpBet.CamelUpBet(val, this);
             });
+            this.endBets = [];
+        } else {
+            this.roundBets = [];
             this.endBets = [];
         }
     }
@@ -79,7 +85,7 @@ class BaseCamel extends Space {
             // round bet
             for (var i = 0; i < this.roundBets.length; i++) {
                 if (this.roundBets[i].holder == null) {
-                    return this.roundBets[i].place(player, this, args.slice(1));
+                    return this.roundBets[i].place(player, this, args.slice(1), input);
                 }
             }
             console.log(`no more available round bets for camel ${this.id}`);
@@ -110,15 +116,16 @@ class BaseCamel extends Space {
         var obj = super.toObj();
         obj.rolled = this.rolled;
         obj.crazy = this.crazy;
-        if (!this.crazy) {
-            obj.roundBets = this.roundBets.map(bet => bet.toObj());
-            obj.endBets = this.endBets.map(bet => bet.toObj());
-        }
+        obj.roundBets = this.roundBets.map(bet => bet.toObj());
+        obj.endBets = this.endBets.map(bet => bet.toObj());
         obj._class = this.constructor.name;
         return obj;
     }
-    fromObj(obj, game) {
+    fromObj(obj, game) {        
         super.fromObj(obj, game);
+        if (typeof(obj.rolled) !== 'boolean' || typeof(obj.crazy) !== 'boolean' || 
+            !Array.isArray(obj.endBets) || !Array.isArray(obj.roundBets))
+            throw 'invalid camel object';
         this.rolled = obj.rolled;
         this.crazy = obj.crazy;
         if (!this.crazy) {
