@@ -22,7 +22,7 @@ module.exports = (camels) => {
   }
 
   const buffer = canvas.toBuffer('image/png');
-  fs.writeFileSync('./board.png', buffer);
+  fs.writeFileSync('./exports/board.png', buffer);
 }
 
 
@@ -114,7 +114,6 @@ function drawCamel(camel) {
   ctx.moveTo(x,y);
   ctx.lineTo(x, y + 10  * yScale);
   ctx.lineTo(x + 10 * xScale, y + 9  * yScale);
-  //ctx.lineTo(x + 10 * xScale, y + 10 * yScale);
   ctx.lineTo(x + 15 * xScale, y + 20 * yScale);
   ctx.lineTo(x + 20 * xScale, y + 20 * yScale);
   ctx.lineTo(x + 25 * xScale, y + 10 * yScale);
