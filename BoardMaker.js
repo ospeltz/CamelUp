@@ -116,24 +116,22 @@ function drawCamel(camel) {
   ctx.lineTo(x + 10 * xScale, y + 9  * yScale);
   ctx.lineTo(x + 15 * xScale, y + 20 * yScale);
   ctx.lineTo(x + 20 * xScale, y + 20 * yScale);
-  ctx.lineTo(x + 25 * xScale, y + 10 * yScale);
-  ctx.lineTo(x + 30 * xScale, y + 10 * yScale);
+  ctx.lineTo(x + 25 * xScale, y + 13 * yScale);
+  ctx.lineTo(x + 30 * xScale, y + 13 * yScale);
   ctx.lineTo(x + 35 * xScale, y + 20 * yScale);
   ctx.lineTo(x + 40 * xScale, y + 20 * yScale);
-  ctx.lineTo(x + 45 * xScale, y + 10 * yScale);
-  ctx.lineTo(x + 48 * xScale, y + 10 * yScale);
-  ctx.lineTo(x + 46 * xScale, y + 8  * yScale);
   ctx.quadraticCurveTo(x + 49 * xScale , y + 8 *yScale,x + 52 * xScale , y + 5 *yScale);
   ctx.lineTo(x + 50 * xScale, y - 10 * yScale);
   ctx.lineTo(x + 45 * xScale, y - 10 * yScale);
-  ctx.lineTo(x + 40 * xScale, y);
-  ctx.lineTo(x + 35 * xScale, y);
+  ctx.lineTo(x + 40 * xScale, y - 3 * yScale);
+  ctx.lineTo(x + 35 * xScale, y - 3 * yScale);
   ctx.lineTo(x + 30 * xScale, y - 10 * yScale);
   ctx.lineTo(x + 25 * xScale, y - 10 * yScale);
-  ctx.lineTo(x + 20 * xScale, y);
-  ctx.lineTo(x + 15 * xScale, y);
+  ctx.lineTo(x + 20 * xScale, y - 3 * yScale);
+  ctx.lineTo(x + 15 * xScale, y - 3 * yScale);
   ctx.lineTo(x + 10 * xScale, y - 10 * yScale);
-  ctx.lineTo(x + 8  * xScale, y - 1  * yScale);
+  ctx.lineTo(x + 8  * xScale, y - 10  * yScale);
+  ctx.lineTo(x + 6  * xScale, y - 1  * yScale);
   ctx.lineTo(x,y);
 
   ctx.fillStyle = color;
@@ -144,7 +142,7 @@ function drawCamel(camel) {
   //eye
   ctx.beginPath();
   ctx.arc(x + 4 * xScale , y + 2 * yScale, yScale, 0, 2 * Math.PI);
-  ctx.fillStyle = 'black';
+  ctx.fillStyle = color === 'black' ? 'white': 'black';
   ctx.fill();
 
 
