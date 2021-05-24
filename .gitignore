@@ -5,3 +5,6 @@ node_modules/
 **/test.js
 
 board.png
+test.js
+exports/
+_delete/

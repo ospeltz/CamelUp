@@ -10,7 +10,8 @@
   "author": "Oliver Speltz",
   "license": "MIT",
   "dependencies": {
-    "canvas": "^2.7.0",
+    "canvas": "^2.8.0",
+    "mongodb": "^3.6.8",
     "prompt-sync": "^4.2.0"
   }
 }
