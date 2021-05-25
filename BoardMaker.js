@@ -1,57 +1,24 @@
+
 const { createCanvas, loadImage } = require('canvas');
 const fs = require('fs');
 
-const HEIGHT = 350;
-const WIDTH = 250;
+const HEIGHT = 500;
+const WIDTH = 350;
 const DARK_COLOR = '#F4A460';
 const LIGHT_COLOR = '#EDC9AF';
 const BORDER = "#000000";
-const N_CAMELS = 5;
+const BOARD_DIMENSION = 5;
 
 
 const canvas = createCanvas(WIDTH * 5,HEIGHT * 5);
 const ctx = canvas.getContext('2d');
 const coordinateMap = createCooridanteMap();
-// let camels = [
-//   {
-//     space: 6,
-//     level: 0,
-//     color: 'blue'
-//   },
-//   {
-//     space: 6,
-//     level: 1,
-//     color: 'red'
-//   },
-//   {
-//     space: 6,
-//     level: 2,
-//     color: 'white',
-//     isCrazy:true
-//   },
-//   {
-//     space: 3,
-//     level: 0,
-//     color: 'purple'
-//   },
-//   {
-//     space: 11,
-//     level: 0,
-//     color: 'yellow'
-//   }
 
-// ];
-
-// getCurrentBoard(camels);
-
-module.exports = function getCurrentBoard(camels)  {
+module.exports = (camels) => {
   drawBlankBoard();
   drawNumbers();
   for(let camel of camels){
-    if(camel.isCrazy)
-      drawCrazyCamel(camel.space,camel.level,camel.color);
-    else
-      drawCamel(camel.space,camel.level,camel.color);
+    drawCamel(camel);
   }
 
   const buffer = canvas.toBuffer('image/png');
@@ -61,6 +28,8 @@ module.exports = function getCurrentBoard(camels)  {
 
 
 function drawBlankBoard() {
+
+  //top row
   for(let i = 0; i < 5; i++) {
     let color = DARK_COLOR;
     if(i % 2 === 0)
@@ -68,9 +37,7 @@ function drawBlankBoard() {
     drawRectangle(i * WIDTH, 0, color)
   }
 
-  drawRectangle(0,HEIGHT,DARK_COLOR);
-  drawRectangle(4 * WIDTH, HEIGHT, DARK_COLOR);
-
+  //middle rows
   for(let i = 1; i <= 3; i++) {
     let color = DARK_COLOR;
     if( i % 2 === 0) 
@@ -79,26 +46,23 @@ function drawBlankBoard() {
     drawRectangle(4 * WIDTH, HEIGHT * i , color);
   }
 
+  //last rows
   for(let i = 0; i < 5; i++) {
     let color = DARK_COLOR;
     if(i % 2 === 0)
       color = LIGHT_COLOR
     drawRectangle(i * WIDTH, 4 * HEIGHT, color)
   }
-  for(let i = 0; i < 8; i++) {
-    let color = 'white';
-    if( i % 2 === 0)
-      color = 'black';
-    drawRectangle(i * WIDTH / 8, HEIGHT, color, WIDTH/8,WIDTH/8)
-  }
-  for(let i = 0; i < 8; i++) {
-    let color = 'white';
-    if( i % 2 === 1)
-      color = 'black';
-    drawRectangle(i * WIDTH / 8, HEIGHT - WIDTH / 8, color, WIDTH/8,WIDTH/8, 1)
-  }
 
 
+  //finish line
+  for(let i = 0; i < 2; i++)
+    for(let j = 0; j < 8; j++) {
+      let color = 'white';
+      if( (i + j) % 2 === 0)
+        color = 'black';
+      drawRectangle(j * WIDTH / 8, HEIGHT - WIDTH * i / 8, color, WIDTH/8,WIDTH/8)
+    }
 
   //draw pyramid
   for(let i = 0; i < 5; i++) {
@@ -121,41 +85,53 @@ function drawNumbers() {
   }
 }
 
-function drawCamel(space, stack_level,color) {
+function drawCamel(camel) {
+
+  let {space, level, color, isCrazy} = camel;
+
   let {x,y} = coordinateMap.get(space);
-  x += WIDTH *.25;
-  y += HEIGHT * .8;
-  scale = HEIGHT / 150;
-  y -= stack_level * 20 * scale;
+  let xScale = WIDTH / -150;      //negative because i drew the camel backward
+  let yScale = HEIGHT / 150;
+
+
+  //margins
+  x -= (27.5 - (WIDTH / xScale / 2) ) * xScale;     //weird way to center... but it works
+  y += 125 * yScale;
+
+  //move to level
+  y -= level * 20 *yScale;
+
+
+  // reverse if crazy
+  if(isCrazy) {
+    x += xScale * 55;
+    xScale = xScale * -1;
+  }
   
 
-  ctx.setLineDash([]);
-  ctx.strokeStyle = 'black';
+  //draw camel
   ctx.beginPath();
   ctx.moveTo(x,y);
-  ctx.lineTo(x + 0  * scale, y + 9  * scale);
-  ctx.lineTo(x + 10  * scale, y + 9  * scale);
-  ctx.lineTo(x + 10  * scale, y + 10 * scale);
-  ctx.lineTo(x + 15 * scale ,y + 20 * scale);
-  ctx.lineTo(x + 20 * scale, y + 20 * scale);
-  ctx.lineTo(x + 25 * scale, y + 10 * scale);
-  ctx.lineTo(x + 30 * scale, y + 10 * scale);
-  ctx.lineTo(x + 35 * scale, y + 20 * scale);
-  ctx.lineTo(x + 40 * scale, y + 20 * scale);
-  ctx.lineTo(x + 45 * scale, y + 10 * scale);
-  ctx.lineTo(x + 48 * scale, y + 10 * scale);
-  ctx.lineTo(x + 46 * scale, y + 8  * scale);
-  ctx.quadraticCurveTo(x + 49 * scale, y + 8 * scale,x + 52 * scale, y + 5 * scale);
-  ctx.lineTo(x + 50 * scale, y - 10 * scale);
-  ctx.lineTo(x + 45 * scale, y - 10 * scale);
-  ctx.lineTo(x + 40 * scale, y);
-  ctx.lineTo(x + 35 * scale, y);
-  ctx.lineTo(x + 30 * scale, y - 10 * scale);
-  ctx.lineTo(x + 25 * scale, y - 10 * scale);
-  ctx.lineTo(x + 20 * scale, y + 0 * scale);
-  ctx.lineTo(x + 15 * scale, y + 0 * scale);
-  ctx.lineTo(x + 10  * scale, y - 10 * scale);
-  ctx.lineTo(x + 8  * scale, y - 1 * scale);
+  ctx.lineTo(x, y + 10  * yScale);
+  ctx.lineTo(x + 10 * xScale, y + 9  * yScale);
+  ctx.lineTo(x + 15 * xScale, y + 20 * yScale);
+  ctx.lineTo(x + 20 * xScale, y + 20 * yScale);
+  ctx.lineTo(x + 25 * xScale, y + 13 * yScale);
+  ctx.lineTo(x + 30 * xScale, y + 13 * yScale);
+  ctx.lineTo(x + 35 * xScale, y + 20 * yScale);
+  ctx.lineTo(x + 40 * xScale, y + 20 * yScale);
+  ctx.quadraticCurveTo(x + 49 * xScale , y + 8 *yScale,x + 52 * xScale , y + 5 *yScale);
+  ctx.lineTo(x + 50 * xScale, y - 10 * yScale);
+  ctx.lineTo(x + 45 * xScale, y - 10 * yScale);
+  ctx.lineTo(x + 40 * xScale, y - 3 * yScale);
+  ctx.lineTo(x + 35 * xScale, y - 3 * yScale);
+  ctx.lineTo(x + 30 * xScale, y - 10 * yScale);
+  ctx.lineTo(x + 25 * xScale, y - 10 * yScale);
+  ctx.lineTo(x + 20 * xScale, y - 3 * yScale);
+  ctx.lineTo(x + 15 * xScale, y - 3 * yScale);
+  ctx.lineTo(x + 10 * xScale, y - 10 * yScale);
+  ctx.lineTo(x + 8  * xScale, y - 10  * yScale);
+  ctx.lineTo(x + 6  * xScale, y - 1  * yScale);
   ctx.lineTo(x,y);
 
   ctx.fillStyle = color;
@@ -163,65 +139,14 @@ function drawCamel(space, stack_level,color) {
   ctx.stroke();
 
 
+  //eye
   ctx.beginPath();
-  ctx.arc(x + 4 * scale, y + 2 * scale,scale,0, 2* Math.PI);
-  ctx.fillStyle = 'black';
+  ctx.arc(x + 4 * xScale , y + 2 * yScale, yScale, 0, 2 * Math.PI);
+  ctx.fillStyle = color === 'black' ? 'white': 'black';
   ctx.fill();
 
 
 }
-
-function drawCrazyCamel(space, stack_level, color) {
-  let {x,y} = coordinateMap.get(space);
-  x += WIDTH *.25;
-  y += HEIGHT * .8;
-  scale = HEIGHT / 150;
-  x += scale * 55;
-  y -= stack_level * 20 * scale;
-  
-
-  ctx.setLineDash([]);
-  ctx.strokeStyle = 'black';
-  ctx.beginPath();
-  ctx.moveTo(x,y);
-  ctx.lineTo(x + 0  * scale, y + 9  * scale);
-  ctx.lineTo(x - 10  * scale, y + 9  * scale);
-  ctx.lineTo(x - 10  * scale, y + 10 * scale);
-  ctx.lineTo(x - 15 * scale ,y + 20 * scale);
-  ctx.lineTo(x - 20 * scale, y + 20 * scale);
-  ctx.lineTo(x - 25 * scale, y + 10 * scale);
-  ctx.lineTo(x - 30 * scale, y + 10 * scale);
-  ctx.lineTo(x - 35 * scale, y + 20 * scale);
-  ctx.lineTo(x - 40 * scale, y + 20 * scale);
-  ctx.lineTo(x - 45 * scale, y + 10 * scale);
-  ctx.lineTo(x - 48 * scale, y + 10 * scale);
-  ctx.lineTo(x - 46 * scale, y + 8  * scale);
-  ctx.quadraticCurveTo(x - 49 * scale, y + 8 * scale,x - 52 * scale, y + 5 * scale);
-  ctx.lineTo(x - 50 * scale, y - 10 * scale);
-  ctx.lineTo(x - 45 * scale, y - 10 * scale);
-  ctx.lineTo(x - 40 * scale, y);
-  ctx.lineTo(x - 35 * scale, y);
-  ctx.lineTo(x - 30 * scale, y - 10 * scale);
-  ctx.lineTo(x - 25 * scale, y - 10 * scale);
-  ctx.lineTo(x - 20 * scale, y + 0 * scale);
-  ctx.lineTo(x - 15 * scale, y + 0 * scale);
-  ctx.lineTo(x - 10  * scale, y - 10 * scale);
-  ctx.lineTo(x - 8  * scale, y - 1 * scale);
-  ctx.lineTo(x,y);
-
-  ctx.fillStyle = color;
-  ctx.fill();
-  ctx.stroke();
-
-
-  ctx.beginPath();
-  ctx.arc(x - 4 * scale, y + 2 * scale,scale,0, 2* Math.PI);
-  ctx.fillStyle = 'black';
-  ctx.fill();
-}
-
-
-
 
 function drawRectangle(x,y,color,height=HEIGHT,width=WIDTH,border_thickness=2) {
   ctx.fillStyle = BORDER;
@@ -254,4 +179,3 @@ function createCooridanteMap() {
   map.set(15, { x: 0 * WIDTH, y: 1 * HEIGHT });
   return map;
 }
-
