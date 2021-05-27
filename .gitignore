@@ -9,5 +9,5 @@ test.js
 exports/
 _delete/
 
-./config.json
+config/
 
