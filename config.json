@@ -1,5 +1,0 @@
-{
-  "mongodbURL": "mongodb+srv://camel-dev:U02pMfZOw3avcK0v@cluster0.ovap7.mongodb.net/CamelUp_DB?retryWrites=true&w=majority",
-  "discordToken": "ODAzNDA1MzQ0Njg0Mzc2MDY2.YA9TiA.Mqu2SsXdAX4-ISfTJVT65GS1H1g",
-  "prefix": "!"
-}
