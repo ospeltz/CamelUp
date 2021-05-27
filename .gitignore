@@ -8,3 +8,6 @@ board.png
 test.js
 exports/
 _delete/
+
+./config.json
+
