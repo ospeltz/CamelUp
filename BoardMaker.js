@@ -159,7 +159,7 @@ function drawCamel(camel) {
   //eye
   ctx.beginPath();
   ctx.arc(x + 4 * xScale , y + 2 * yScale, yScale, 0, 2 * Math.PI);
-  ctx.fillStyle = color === 'black' ? 'white': 'black';
+  ctx.fillStyle = isDark(color)? 'white': 'black';
   ctx.fill();
 
 

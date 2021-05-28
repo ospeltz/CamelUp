@@ -33,8 +33,9 @@ try {
 } catch {
     console.log('write file failed');
 }
-let board = {}
-board.camels = cmup.toBoardMaker();
-board.tiles = [];
+const board = {
+    camels: cmup.toBoardMaker(),
+    tiles: []
+};
 getCurrentBoard(board);
 
