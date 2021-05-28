@@ -9,6 +9,11 @@ class CommandHandler{
   handleCommand(message, command, args) {
     switch (command) {
       case 'play': {
+        if(!this.#validateTurnOrder(message.author.id)) {
+          message.reply('it is not your turn!');
+          return;
+        }
+        this.#sendCurrentGameState(message, args);
         this.#play(message, args).then(selection => {
           switch (selection) {
             case 0: {
@@ -37,21 +42,37 @@ class CommandHandler{
       }
 
       case 'bet': {
+        if(!this.#validateTurnOrder(message.author.id)) {
+          message.reply('it is not your turn!');
+          return;
+        }
         this.#bet(message, args);
         break;
       }
 
       case 'roll': {
+        if(!this.#validateTurnOrder(message.author.id)) {
+          message.reply('it is not your turn!');
+          return;
+        }
         this.#roll(message, args);
         break;
       }
 
       case 'spectate': {
+        if(!this.#validateTurnOrder(message.author.id)) {
+          message.reply('it is not your turn!');
+          return;
+        }
         this.#spectate(message, args);
         break;
       }
 
       case 'partner': {
+        if(!this.#validateTurnOrder(message.author.id)) {
+          message.reply('it is not your turn!');
+          return;
+        }
         this.#partner(message, args);
         break;
       }
@@ -112,7 +133,7 @@ class CommandHandler{
   }
 
   #sendCurrentGameState(message, args) {
-    const attachment = new MessageAttachment('./exports/board.png', 'board.png');
+    const attachment = new MessageAttachment(`./exports/${message.guild.id}.png`, 'board.png');
 
     const embed = new MessageEmbed()
       .setTitle('The current board!')
@@ -121,6 +142,10 @@ class CommandHandler{
       .addField('Test','This is a test field');
 
     message.channel.send(embed);
+  }
+
+  #validateTurnOrder(memberId) {
+    return true;
   }
 }
 
