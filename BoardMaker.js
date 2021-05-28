@@ -1,12 +1,12 @@
 const { createCanvas, loadImage, Font } = require('canvas');
 const fs = require('fs');
 
-const HEIGHT = 500;
-const WIDTH = 350;
+const HEIGHT = 250;
+const WIDTH = 175;
 const DARK_COLOR = '#F4A460';
 const LIGHT_COLOR = '#EDC9AF';
 const BORDER = "#000000";
-const BOARD_DIMENSION = 5;
+const BOARD_DIMENSION = 5; //note that changing this will fuck *everything* up
 
 
 const canvas = createCanvas(WIDTH * BOARD_DIMENSION, HEIGHT * BOARD_DIMENSION);
@@ -19,8 +19,10 @@ module.exports = async (board) => {
   drawNumbers();
   for(let tile of tiles)
     await drawSpectatorCard(tile);
-  for(let camel of camels){
+  for(const [i, camel] of camels.entries()){
     drawCamel(camel);
+    if(!camel.hasRolled) 
+      drawDie(i, camel.color);  
   }
 
   const buffer = canvas.toBuffer('image/png');
@@ -67,7 +69,7 @@ function drawBlankBoard() {
     }
 
   //draw pyramid
-  for(let i = 0; i < 5; i++) {
+  for(let i = 0; i < 3; i++) {
     let m = (HEIGHT / 5) * i;
     drawRectangle(WIDTH + m , HEIGHT + m, "#E1A95F", 3 * HEIGHT - (2 * m),  3 * WIDTH - (2 * m), 4 );
   }
@@ -83,8 +85,21 @@ function drawNumbers() {
     x += WIDTH / 2;
     y += HEIGHT / 2;
     ctx.fillText(i,x,y);
-
   }
+}
+
+function drawDie(index, color) {
+  let x = WIDTH + 2 * HEIGHT / 5 + HEIGHT / 6;
+  let y = 7 * HEIGHT / 5 + HEIGHT / 6;
+  y += Math.floor( index / 2 ) * ( HEIGHT / 2 );
+  if(index % 2 === 1) 
+    x += WIDTH;
+  
+  drawRectangle(x, y, color, HEIGHT / 4, HEIGHT / 4, 1);
+  ctx.font = 'bold 30px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = isDark(color)? 'white': 'black';
+  ctx.fillText(Math.floor(Math.random() * 3 + 1), x + HEIGHT / 8, y + HEIGHT / 6);
 }
 
 function drawCamel(camel) {
@@ -101,7 +116,7 @@ function drawCamel(camel) {
   y += 125 * yScale;
 
   //move to level
-  y -= level * 20 *yScale;
+  y -= level * 20 * yScale;
 
 
   // reverse if crazy
@@ -153,7 +168,7 @@ function drawCamel(camel) {
 function drawSpectatorCard(tile) {
   const { space, photoUrl, type } = tile;
   const color = tile.color? tile.color: '#d0b7ac';
-  const scale = 25;
+  const scale = HEIGHT / 20;
   let { x, y } = coordinateMap.get(space);
 
   //set starting point
@@ -176,7 +191,7 @@ function drawSpectatorCard(tile) {
 
   
   ctx.textAlign = 'center';
-  ctx.font = 'bold 30px Helvetica-Neue';
+  ctx.font = `bold ${HEIGHT/12.5}px Helvetica-Neue`;
   if(type === 'desert') {
     ctx.fillStyle = 'green';
     ctx.fillText('+1', x + 2 * scale, y + 5);
@@ -186,16 +201,13 @@ function drawSpectatorCard(tile) {
     ctx.fillText('-1', x + 2 * scale, y + 5);
   }
   loadImage(photoUrl).then((image) => {
-    ctx.drawImage(image, x + 7 * scale - 35, y - 35, 70, 70)
+    ctx.drawImage(image, x + 7 * scale - HEIGHT / 14, y - HEIGHT / 14, HEIGHT / 7, HEIGHT / 7)
 
     const buffer = canvas.toBuffer('image/png');
     fs.writeFileSync('./exports/board.png', buffer);
 
   })
-
 }
-
-
 
 function drawRectangle(x, y, color, height=HEIGHT, width=WIDTH, borderThickness=2) {
   ctx.fillStyle = BORDER;
@@ -227,4 +239,10 @@ function createCooridanteMap() {
   map.set(14, { x: 0 * WIDTH, y: 2 * HEIGHT });
   map.set(15, { x: 0 * WIDTH, y: 1 * HEIGHT });
   return map;
+}
+
+function isDark(color) {
+  if(color === 'black' || color === 'blue' || color === 'purple')
+    return true;
+  return false;
 }
