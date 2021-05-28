@@ -1,5 +1,4 @@
-
-const { createCanvas, loadImage } = require('canvas');
+const { createCanvas, loadImage, Font } = require('canvas');
 const fs = require('fs');
 
 const HEIGHT = 500;
@@ -10,13 +9,16 @@ const BORDER = "#000000";
 const BOARD_DIMENSION = 5;
 
 
-const canvas = createCanvas(WIDTH * 5,HEIGHT * 5);
+const canvas = createCanvas(WIDTH * BOARD_DIMENSION, HEIGHT * BOARD_DIMENSION);
 const ctx = canvas.getContext('2d');
 const coordinateMap = createCooridanteMap();
 
-module.exports = (camels) => {
+module.exports = async (board) => {
+  const {camels, tiles } = board;
   drawBlankBoard();
   drawNumbers();
+  for(let tile of tiles)
+    await drawSpectatorCard(tile);
   for(let camel of camels){
     drawCamel(camel);
   }
@@ -87,10 +89,10 @@ function drawNumbers() {
 
 function drawCamel(camel) {
 
-  let {space, level, color, isCrazy} = camel;
+  let { space, level, color, isCrazy } = camel;
 
-  let {x,y} = coordinateMap.get(space);
-  let xScale = WIDTH / -150;      //negative because i drew the camel backward
+  let { x, y } = coordinateMap.get(space);
+  let xScale = WIDTH / -150;      //negative because I drew the camel backward
   let yScale = HEIGHT / 150;
 
 
@@ -148,14 +150,61 @@ function drawCamel(camel) {
 
 }
 
-function drawRectangle(x,y,color,height=HEIGHT,width=WIDTH,border_thickness=2) {
+function drawSpectatorCard(tile) {
+  const { space, photoUrl, type } = tile;
+  const color = tile.color? tile.color: '#d0b7ac';
+  const scale = 25;
+  let { x, y } = coordinateMap.get(space);
+
+  //set starting point
+  x += 2 * scale;
+  y += 10 * scale;
+
+  //draw the outline
+  ctx.fillStyle = BORDER;
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.lineTo(x + 1 * scale, y + 3 * scale);
+  ctx.lineTo(x + 9 * scale, y + 3 * scale);
+  ctx.lineTo(x + 10 * scale, y);
+  ctx.lineTo(x + 9 * scale, y - 3 * scale);
+  ctx.lineTo(x + 1 * scale, y - 3 * scale);
+  ctx.lineTo(x, y);
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.stroke();
+
+  
+  ctx.textAlign = 'center';
+  ctx.font = 'bold 30px Helvetica-Neue';
+  if(type === 'desert') {
+    ctx.fillStyle = 'green';
+    ctx.fillText('+1', x + 2 * scale, y + 5);
+  }
+  else if(type === 'mirage') {
+    ctx.fillStyle = 'red';
+    ctx.fillText('-1', x + 2 * scale, y + 5);
+  }
+  loadImage(photoUrl).then((image) => {
+    ctx.drawImage(image, x + 7 * scale - 35, y - 35, 70, 70)
+
+    const buffer = canvas.toBuffer('image/png');
+    fs.writeFileSync('./exports/board.png', buffer);
+
+  })
+
+}
+
+
+
+function drawRectangle(x, y, color, height=HEIGHT, width=WIDTH, borderThickness=2) {
   ctx.fillStyle = BORDER;
   ctx.fillRect(x,y,width,height);
   ctx.fillStyle = color;
-  ctx.fillRect(x + border_thickness, 
-    y + border_thickness, 
-    width - 2 * border_thickness, 
-    height - 2 * border_thickness
+  ctx.fillRect(x + borderThickness, 
+    y + borderThickness, 
+    width - 2 * borderThickness, 
+    height - 2 * borderThickness
   );
 }
 
